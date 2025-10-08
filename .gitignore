@@ -43,3 +43,24 @@ next-env.d.ts
 
 # logs
 *.log
+
+# macOS
+._*
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# backup files
+/backup/
+*.backup
+*.bak
+
+# test files
+test.png
+*.test.*
+tailwind-test.html
+
+# temporary files
+cookies.txt
+*.tmp
+*.temp
