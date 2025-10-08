@@ -1,0 +1,74 @@
+services:
+  # MariaDB Database
+  db:
+    image: mariadb:11.4
+    container_name: nh_database
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: cjsrn16
+      MYSQL_DATABASE: nh_production
+      MYSQL_USER: nh_user
+      MYSQL_PASSWORD: nh_password123!
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./backup:/backup
+    ports:
+      - "3307:3306"
+    networks:
+      - nh_network
+    healthcheck:
+      test: ["CMD", "mariadb", "-u", "root", "-pcjsrn16", "-e", "SELECT 1"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nh_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: mysql://nh_user:nh_password123!@db:3306/nh_production
+      NEXTAUTH_URL: https://cancerwith.kr
+      NEXTAUTH_SECRET: your-secret-key-here-change-this-in-production
+      NEXT_PUBLIC_TOSS_CLIENT_KEY: test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq
+      TOSS_SECRET_KEY: test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R
+    volumes:
+      - ./public/uploads:/app/public/uploads
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nh_network
+
+  # Nginx Reverse Proxy (Optional - for production)
+  nginx:
+    image: nginx:alpine
+    container_name: nh_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./public/uploads:/usr/share/nginx/html/uploads:ro
+    depends_on:
+      - app
+    networks:
+      - nh_network
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  nh_network:
+    driver: bridge
