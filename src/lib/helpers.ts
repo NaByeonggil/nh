@@ -163,6 +163,56 @@ export function sanitizeHtml(html: string): string {
     .replace(/on\w+="[^"]*"/gi, "")
 }
 
+// HTML 엔티티 디코딩
+export function decodeHtmlEntities(text: string): string {
+  if (!text) return text
+
+  const entities: Record<string, string> = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": "\"",
+    "&#39;": "'",
+    "&apos;": "'",
+    "&nbsp;": " ",
+    "&mdash;": "\u2014",
+    "&ndash;": "\u2013",
+    "&hellip;": "\u2026",
+    "&lsquo;": "\u2018",
+    "&rsquo;": "\u2019",
+    "&ldquo;": "\u201C",
+    "&rdquo;": "\u201D",
+    "&bull;": "\u2022",
+    "&copy;": "\u00A9",
+    "&reg;": "\u00AE",
+    "&trade;": "\u2122",
+    "&times;": "\u00D7",
+    "&divide;": "\u00F7",
+    "&plusmn;": "\u00B1",
+    "&frac12;": "\u00BD",
+    "&frac14;": "\u00BC",
+    "&frac34;": "\u00BE",
+    "&deg;": "\u00B0",
+    "&euro;": "\u20AC",
+    "&pound;": "\u00A3",
+    "&yen;": "\u00A5",
+    "&cent;": "\u00A2",
+  }
+
+  let decoded = text
+
+  // Named entities
+  for (const [entity, char] of Object.entries(entities)) {
+    decoded = decoded.replace(new RegExp(entity, "gi"), char)
+  }
+
+  // Numeric entities (&#123; or &#x1F;)
+  decoded = decoded.replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)))
+  decoded = decoded.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+
+  return decoded
+}
+
 // SEO utilities
 export function generateMetaDescription(content: string, maxLength: number = 160): string {
   const plainText = content.replace(/<[^>]*>/g, "").trim()

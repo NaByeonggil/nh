@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import Link from "next/link"
@@ -17,7 +17,11 @@ import {
   LogOut,
   Heart,
   CreditCard,
-  Image
+  Image,
+  Bell,
+  Wand2,
+  Film,
+  Star
 } from "lucide-react"
 
 const adminMenuItems = [
@@ -25,10 +29,14 @@ const adminMenuItems = [
   { href: "/admin/users", label: "사용자 관리", icon: Users },
   { href: "/admin/inquiries", label: "문의 관리", icon: MessageSquare },
   { href: "/admin/content", label: "컨텐츠 관리", icon: FileText },
+  { href: "/admin/notices", label: "공지사항 관리", icon: Bell },
   { href: "/admin/products", label: "상품 관리", icon: Package },
+  { href: "/admin/recommended-products", label: "추천제품 관리", icon: Star },
   { href: "/admin/orders", label: "주문 관리", icon: ShoppingCart },
   { href: "/admin/payments", label: "결제 관리", icon: CreditCard },
   { href: "/admin/hero-images", label: "히어로 이미지", icon: Image },
+  { href: "/admin/image-converter", label: "이미지 변환", icon: Wand2 },
+  { href: "/admin/gif-converter", label: "GIF 변환", icon: Film },
   { href: "/admin/settings", label: "사이트 설정", icon: Settings },
 ]
 
@@ -108,7 +116,18 @@ export default function AdminLayout({
             })}
           </nav>
           
-          <div className="p-3 mt-auto">
+          <div className="p-3 mt-auto space-y-2">
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              asChild
+            >
+              <Link href="/">
+                <Heart className="mr-2 h-4 w-4" />
+                사이트로 돌아가기
+              </Link>
+            </Button>
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-3">
@@ -116,10 +135,13 @@ export default function AdminLayout({
                     <p className="text-sm font-medium">{session.user.name}</p>
                     <p className="text-xs text-muted-foreground">{session.user.email}</p>
                   </div>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href="/">
-                      <LogOut className="h-4 w-4" />
-                    </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                    title="로그아웃"
+                  >
+                    <LogOut className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>

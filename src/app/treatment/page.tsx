@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Stethoscope, Search, Calendar, Eye, TrendingUp } from "lucide-react"
-import { formatDateTime, timeAgo, extractExcerpt } from "@/lib/helpers"
+import { formatDateTime, timeAgo, extractExcerpt, decodeHtmlEntities } from "@/lib/helpers"
 import { CONTENT_CATEGORIES } from "@/lib/constants"
 
 interface ContentItem {
@@ -192,6 +192,7 @@ export default function TreatmentPage() {
                       alt={content.title}
                       fill
                       className="object-cover"
+                      unoptimized
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
@@ -213,17 +214,17 @@ export default function TreatmentPage() {
                   </div>
                   
                   <CardTitle className="text-lg leading-tight">
-                    <Link 
+                    <Link
                       href={`/treatment/${content.id}`}
                       className="hover:text-primary transition-colors"
                     >
-                      {content.title}
+                      {decodeHtmlEntities(content.title)}
                     </Link>
                   </CardTitle>
-                  
+
                   {content.excerpt && (
                     <CardDescription className="line-clamp-3">
-                      {content.excerpt}
+                      {decodeHtmlEntities(content.excerpt)}
                     </CardDescription>
                   )}
                 </CardHeader>

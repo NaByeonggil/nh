@@ -1,59 +1,56 @@
 # Build stage
 FROM node:18-alpine AS builder
 
-# Install dependencies for building including OpenSSL
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache libc6-compat openssl python3 make g++ vips-dev
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
 RUN npm ci
 
-# Copy source code
 COPY . .
 
-# Generate Prisma client
 RUN npx prisma generate
 
-# Build the application
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Production stage
 FROM node:18-alpine AS runner
 
-# Install runtime dependencies including OpenSSL
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl vips ffmpeg
 
 WORKDIR /app
 
-# Create a non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
-# Copy built application
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
-# Create uploads directories for all content types
-RUN mkdir -p public/uploads/hero-images && \
-    mkdir -p public/uploads/products && \
-    mkdir -p public/uploads/inquiries && \
+RUN mkdir -p public/uploads/hero-images \
+             public/uploads/products \
+             public/uploads/inquiries \
+             public/uploads/content \
+             public/uploads/blog \
+             public/uploads/converted \
+             public/uploads/memos \
+             public/uploads/gifs/temp && \
     chown -R nextjs:nodejs public/uploads
 
 USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV NODE_ENV production
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+ENV NEXT_TELEMETRY_DISABLED=1
 
 CMD ["node", "server.js"]

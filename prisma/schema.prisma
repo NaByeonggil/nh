@@ -63,6 +63,7 @@ model User {
   inquiries Inquiry[]
   comments  Comment[]
   orders    Order[]
+  memos     Memo[]
 }
 
 model VerificationToken {
@@ -114,6 +115,7 @@ model Content {
   content     String      @db.Text
   excerpt     String?
   thumbnail   String?
+  sourceUrl   String?     // 블로그 출처 URL
   category    ContentType
   published   Boolean     @default(false)
   viewCount   Int         @default(0)
@@ -172,31 +174,37 @@ model OrderItem {
 }
 
 model HeroImage {
-  id        String   @id @default(cuid())
-  title     String?
-  subtitle  String?
-  imageUrl  String
-  linkUrl   String?
-  linkText  String?
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  title          String?
+  subtitle       String?
+  imageUrl       String   // 데스크톱용 이미지
+  mobileImageUrl String?  // 모바일용 이미지 (옵션)
+  linkUrl        String?
+  linkText       String?
+  order          Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([order])
 }
 
 model Notice {
-  id        String   @id @default(cuid())
-  title     String
-  content   String   @db.Text
-  important Boolean  @default(false)
-  published Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String    @id @default(cuid())
+  title          String
+  content        String    @db.Text
+  important      Boolean   @default(false)
+  published      Boolean   @default(true)
+  isPopup        Boolean   @default(false)
+  popupStartDate DateTime?
+  popupEndDate   DateTime?
+  popupShowOnce  Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([published, important])
   @@index([createdAt])
+  @@index([isPopup, popupStartDate, popupEndDate])
 }
 
 enum Role {
@@ -218,4 +226,71 @@ enum OrderStatus {
   DELIVERED
   CANCELLED
   REFUNDED
+}
+
+model ContactInfo {
+  id              String   @id @default(cuid())
+  email           String
+  phone           String
+  consultingHours String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum MemoCategory {
+  YOUTUBE
+  IT
+  HEALTH_SUPPLEMENT
+  PHARMACY
+  ETC
+}
+
+model Memo {
+  id        String       @id @default(cuid())
+  title     String
+  content   String       @db.Text
+  images    String?      @db.Text // JSON string of image paths
+  category  MemoCategory @default(ETC)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([category])
+}
+
+model RecommendedProduct {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?  @db.Text
+  imageUrl      String?
+  price         Decimal  @db.Decimal(10, 2)
+  originalPrice Decimal? @db.Decimal(10, 2)
+  rating        Decimal  @default(0) @db.Decimal(2, 1)
+  reviewCount   Int      @default(0)
+  purchaseUrl   String?  // 외부 구매 링크
+  isActive      Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isActive, order])
+}
+
+// 페이지 방문 기록
+model PageView {
+  id        String   @id @default(cuid())
+  path      String   // 방문한 페이지 경로
+  ip        String?  // 방문자 IP (익명화 가능)
+  userAgent String?  @db.Text // 브라우저 정보
+  referer   String?  // 유입 경로
+  sessionId String?  // 세션 ID (동일 사용자 구분)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+  @@index([sessionId])
 }

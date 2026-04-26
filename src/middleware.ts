@@ -11,12 +11,17 @@ export default withAuth(
         if (req.nextUrl.pathname.startsWith("/admin")) {
           return token?.role === "ADMIN"
         }
-        
+
+        // 메모장 접근 권한 확인 (관리자만)
+        if (req.nextUrl.pathname.startsWith("/memos")) {
+          return token?.role === "ADMIN"
+        }
+
         // 인증이 필요한 페이지
         if (req.nextUrl.pathname.startsWith("/my")) {
           return !!token
         }
-        
+
         return true
       },
     },
@@ -24,5 +29,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ["/admin/:path*", "/my/:path*"]
+  matcher: ["/admin/:path*", "/memos/:path*", "/my/:path*"]
 }
