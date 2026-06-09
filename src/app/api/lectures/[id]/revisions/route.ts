@@ -9,16 +9,18 @@ import { z } from "zod"
 // 추가본은 별도 URL이 아니라 강의 노트의 버전으로 관리한다.
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 })
     }
 
     const lecture = await db.lecture.findFirst({
-      where: { OR: [{ id: params.id }, { slug: params.id }] },
+      where: { OR: [{ id }, { slug: id }] },
     })
     if (!lecture) {
       return NextResponse.json({ error: "강의 노트를 찾을 수 없습니다." }, { status: 404 })

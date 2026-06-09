@@ -8,11 +8,12 @@ import { z } from "zod"
 // GET /api/topics/[slug] - 주제 허브 (통합본 + 해당 주제의 강의 노트 목록)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params
     const topic = await db.topic.findUnique({
-      where: { slug: params.slug },
+      where: { slug },
       include: {
         lectures: {
           orderBy: { date: "desc" },
@@ -47,15 +48,17 @@ export async function GET(
 // PATCH /api/topics/[slug] - 주제 통합본(overview)/이름 수정 (관리자)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params
+
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 })
     }
 
-    const existing = await db.topic.findUnique({ where: { slug: params.slug } })
+    const existing = await db.topic.findUnique({ where: { slug } })
     if (!existing) {
       return NextResponse.json({ error: "주제를 찾을 수 없습니다." }, { status: 404 })
     }
@@ -64,7 +67,7 @@ export async function PATCH(
     const data = topicSchema.partial().parse(body)
 
     const topic = await db.topic.update({
-      where: { slug: params.slug },
+      where: { slug },
       data: { name: data.name, overview: data.overview },
     })
 
@@ -84,20 +87,22 @@ export async function PATCH(
 // DELETE /api/topics/[slug] - 주제 삭제 (관리자)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params
+
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 })
     }
 
-    const existing = await db.topic.findUnique({ where: { slug: params.slug } })
+    const existing = await db.topic.findUnique({ where: { slug } })
     if (!existing) {
       return NextResponse.json({ error: "주제를 찾을 수 없습니다." }, { status: 404 })
     }
 
-    await db.topic.delete({ where: { slug: params.slug } })
+    await db.topic.delete({ where: { slug } })
 
     return NextResponse.json({ success: true })
   } catch (error) {

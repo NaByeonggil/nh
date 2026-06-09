@@ -14,11 +14,12 @@ function whereByIdOrSlug(idOrSlug: string) {
 // GET /api/lectures/[id] - 단일 강의 노트 (조회수 증가)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const lecture = await db.lecture.findFirst({
-      where: whereByIdOrSlug(params.id),
+      where: whereByIdOrSlug(id),
       include: {
         topics: { select: { name: true, slug: true } },
         revisions: { orderBy: { createdAt: "asc" } },
@@ -56,15 +57,17 @@ export async function GET(
 // PATCH /api/lectures/[id] - 수정 (관리자)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 })
     }
 
-    const existing = await db.lecture.findFirst({ where: whereByIdOrSlug(params.id) })
+    const existing = await db.lecture.findFirst({ where: whereByIdOrSlug(id) })
     if (!existing) {
       return NextResponse.json({ error: "강의 노트를 찾을 수 없습니다." }, { status: 404 })
     }
@@ -112,15 +115,17 @@ export async function PATCH(
 // DELETE /api/lectures/[id] - 삭제 (관리자)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 })
     }
 
-    const existing = await db.lecture.findFirst({ where: whereByIdOrSlug(params.id) })
+    const existing = await db.lecture.findFirst({ where: whereByIdOrSlug(id) })
     if (!existing) {
       return NextResponse.json({ error: "강의 노트를 찾을 수 없습니다." }, { status: 404 })
     }

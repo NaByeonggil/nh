@@ -8,10 +8,11 @@ import { z } from "zod"
 // GET /api/notices/[id] - 단일 공지사항
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const notice = await db.notice.findUnique({ where: { id: params.id } })
+    const { id } = await params
+    const notice = await db.notice.findUnique({ where: { id } })
     if (!notice) {
       return NextResponse.json({ error: "공지사항을 찾을 수 없습니다." }, { status: 404 })
     }
@@ -28,15 +29,17 @@ export async function GET(
 // PUT /api/notices/[id] - 수정 (관리자)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 })
     }
 
-    const existing = await db.notice.findUnique({ where: { id: params.id } })
+    const existing = await db.notice.findUnique({ where: { id } })
     if (!existing) {
       return NextResponse.json({ error: "공지사항을 찾을 수 없습니다." }, { status: 404 })
     }
@@ -45,7 +48,7 @@ export async function PUT(
     const data = noticeSchema.parse(body)
 
     const notice = await db.notice.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: data.title,
         content: data.content,
@@ -74,20 +77,22 @@ export async function PUT(
 // DELETE /api/notices/[id] - 삭제 (관리자)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 })
     }
 
-    const existing = await db.notice.findUnique({ where: { id: params.id } })
+    const existing = await db.notice.findUnique({ where: { id } })
     if (!existing) {
       return NextResponse.json({ error: "공지사항을 찾을 수 없습니다." }, { status: 404 })
     }
 
-    await db.notice.delete({ where: { id: params.id } })
+    await db.notice.delete({ where: { id } })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Notice delete error:", error)
