@@ -6,6 +6,7 @@ import { randomUUID } from "crypto"
 import sharp from "sharp"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { imageQueue, QueueFullError } from "@/lib/concurrency-queue"
 
 const TARGET_FORMATS = ["webp", "jpeg", "png", "avif"] as const
 type TargetFormat = (typeof TARGET_FORMATS)[number]
@@ -66,32 +67,36 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      const inputBuffer = Buffer.from(await file.arrayBuffer())
+      // CPU 작업(sharp)은 동시 실행 제한 큐 안에서 수행
+      const { outputBuffer, outMeta } = await imageQueue.run(async () => {
+        const inputBuffer = Buffer.from(await file.arrayBuffer())
 
-      let pipeline = sharp(inputBuffer, { failOn: "none" }).rotate() // EXIF 회전 보정
-      const meta = await sharp(inputBuffer).metadata()
+        let pipeline = sharp(inputBuffer, { failOn: "none" }).rotate() // EXIF 회전 보정
+        const meta = await sharp(inputBuffer).metadata()
 
-      if (maxWidth && meta.width && meta.width > maxWidth) {
-        pipeline = pipeline.resize({ width: maxWidth, withoutEnlargement: true })
-      }
+        if (maxWidth && meta.width && meta.width > maxWidth) {
+          pipeline = pipeline.resize({ width: maxWidth, withoutEnlargement: true })
+        }
 
-      switch (targetFormat) {
-        case "webp":
-          pipeline = pipeline.webp({ quality })
-          break
-        case "jpeg":
-          pipeline = pipeline.jpeg({ quality, mozjpeg: true })
-          break
-        case "png":
-          pipeline = pipeline.png({ quality, compressionLevel: 9 })
-          break
-        case "avif":
-          pipeline = pipeline.avif({ quality })
-          break
-      }
+        switch (targetFormat) {
+          case "webp":
+            pipeline = pipeline.webp({ quality })
+            break
+          case "jpeg":
+            pipeline = pipeline.jpeg({ quality, mozjpeg: true })
+            break
+          case "png":
+            pipeline = pipeline.png({ quality, compressionLevel: 9 })
+            break
+          case "avif":
+            pipeline = pipeline.avif({ quality })
+            break
+        }
 
-      const outputBuffer = await pipeline.toBuffer()
-      const outMeta = await sharp(outputBuffer).metadata()
+        const buf = await pipeline.toBuffer()
+        const m = await sharp(buf).metadata()
+        return { outputBuffer: buf, outMeta: m }
+      })
 
       const baseName = path
         .parse(file.name)
@@ -116,6 +121,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ results }, { status: 200 })
   } catch (error) {
+    if (error instanceof QueueFullError) {
+      return NextResponse.json(
+        { error: "변환 요청이 많습니다. 잠시 후 다시 시도해주세요." },
+        { status: 503 }
+      )
+    }
     console.error("Image conversion error:", error)
     return NextResponse.json(
       { error: "이미지 변환 중 오류가 발생했습니다." },

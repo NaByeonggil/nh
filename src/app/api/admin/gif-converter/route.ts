@@ -7,6 +7,7 @@ import { randomUUID } from "crypto"
 import { spawn } from "child_process"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { ffmpegQueue, QueueFullError } from "@/lib/concurrency-queue"
 
 // Node.js 런타임 필수 (child_process/fs 사용)
 export const runtime = "nodejs"
@@ -117,7 +118,8 @@ export async function POST(request: NextRequest) {
       ]
     }
 
-    await runFfmpeg(args)
+    // ffmpeg 실행은 동시 실행 제한 큐 안에서 수행
+    await ffmpegQueue.run(() => runFfmpeg(args))
 
     const outStat = await stat(outPath)
     return NextResponse.json({
@@ -130,6 +132,12 @@ export async function POST(request: NextRequest) {
       savedPercent: file.size > 0 ? Math.round((1 - outStat.size / file.size) * 100) : 0,
     })
   } catch (error) {
+    if (error instanceof QueueFullError) {
+      return NextResponse.json(
+        { error: "변환 요청이 많습니다. 잠시 후 다시 시도해주세요." },
+        { status: 503 }
+      )
+    }
     console.error("GIF conversion error:", error)
     const msg = error instanceof Error ? error.message : "변환 중 오류가 발생했습니다."
     return NextResponse.json({ error: msg }, { status: 500 })
