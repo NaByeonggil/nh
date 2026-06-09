@@ -1,9 +1,9 @@
 // App configuration
 export const APP_CONFIG = {
-  name: "옆집약사",
+  name: "옆집나약사",
   description: "암환자를 위한 생활정보 플랫폼",
   url: process.env.NEXTAUTH_URL || "http://localhost:3000",
-  author: "옆집약사팀",
+  author: "옆집나약사팀",
 } as const
 
 // Pagination
@@ -48,11 +48,12 @@ export const USER_ROLES = {
 
 // Navigation menu items
 export const NAVIGATION_ITEMS = [
-  { href: "/about", label: "옆집약사 이야기" },
+  { href: "/about", label: "옆집나약사 이야기" },
   { href: "/inquiry", label: "문의게시판" },
   { href: "/lifestyle", label: "생활습관 식이요법" },
   { href: "/treatment", label: "표준치료 동향" },
   { href: "/supplements", label: "보충제 궁금해요" },
+  { href: "/lectures", label: "강의 요약" },
   { href: "/links", label: "추천 사이트" },
 ] as const
 

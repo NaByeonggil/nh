@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the "Neighbor Pharmacist" (옆집약사) website project - a healthcare platform focused on providing cancer patients with lifestyle guidance, dietary advice, latest cancer information, and consultation services.
+This is the "Neighbor Pharmacist" (옆집나약사) website project - a healthcare platform focused on providing cancer patients with lifestyle guidance, dietary advice, latest cancer information, and consultation services.
 
 ## Development Commands
 
@@ -200,7 +200,7 @@ See `docs/DOCKER_DEPLOYMENT.md` for comprehensive deployment guide including:
 
 ### Project Context
 
-This is the "Neighbor Pharmacist" (옆집약사) platform - a healthcare website for cancer patients. Key considerations:
+This is the "Neighbor Pharmacist" (옆집나약사) platform - a healthcare website for cancer patients. Key considerations:
 - **Medical privacy**: Always handle patient data with appropriate security measures
 - **Accessibility**: Healthcare users may have diverse accessibility needs
 - **Guest access**: Inquiry system supports both authenticated and anonymous posts

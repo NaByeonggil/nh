@@ -124,7 +124,7 @@ export default function CheckoutPage() {
       try {
         await requestPayment({
           orderId: order.orderNumber,
-          orderName: `옆집약사 주문 ${order.items.length}건`,
+          orderName: `옆집나약사 주문 ${order.items.length}건`,
           amount: order.totalAmount,
           customerName: orderData.recipientName,
           customerEmail: session?.user?.email || undefined,

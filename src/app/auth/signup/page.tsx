@@ -89,7 +89,7 @@ export default function SignUpPage() {
             <Heart className="h-12 w-12 text-primary" />
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            옆집약사 회원가입
+            옆집나약사 회원가입
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             계정을 만들어 서비스를 이용하세요

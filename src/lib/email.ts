@@ -25,7 +25,7 @@ export async function sendEmail({
 }) {
   try {
     const info = await transporter.sendMail({
-      from: `"옆집약사" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      from: `"옆집나약사" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
       to: Array.isArray(to) ? to.join(', ') : to,
       subject,
       text,
@@ -50,7 +50,7 @@ export async function sendAdminEmail(subject: string, html: string, text?: strin
 
   return sendEmail({
     to: adminEmail,
-    subject: `[옆집약사 관리자] ${subject}`,
+    subject: `[옆집나약사 관리자] ${subject}`,
     html,
     text,
   })

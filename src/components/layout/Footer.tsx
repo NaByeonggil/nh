@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const quickLinks = [
-  { href: "/about", label: "옆집약사 이야기" },
+  { href: "/about", label: "옆집나약사 이야기" },
   { href: "/inquiry", label: "문의게시판" },
   { href: "/lifestyle", label: "생활습관 식이요법" },
   { href: "/treatment", label: "표준치료 동향" },
@@ -15,7 +15,7 @@ const quickLinks = [
 
 const moreLinks = [
   { href: "/supplements", label: "보충제 궁금해요" },
-  { href: "/products", label: "추천제품" },
+  { href: "/supplements", label: "추천제품" },
   { href: "/links", label: "추천 사이트" },
 ]
 
@@ -67,7 +67,7 @@ export function Footer() {
             <div className="col-span-2 md:col-span-1 lg:col-span-1">
               <Link href="/" className="inline-flex items-center space-x-2 mb-4 group">
                 <Heart className="h-7 w-7 text-primary transition-transform group-hover:scale-110" />
-                <span className="text-xl font-bold text-primary">옆집약사</span>
+                <span className="text-xl font-bold text-primary">옆집나약사</span>
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 암환자의 생활습관, 식이요법, 최신 치료정보를 제공하는 전문 플랫폼입니다.
@@ -152,7 +152,7 @@ export function Footer() {
           <div className="container mx-auto px-4 py-4">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <p className="text-xs text-muted-foreground text-center sm:text-left">
-                © {new Date().getFullYear()} 옆집약사. All rights reserved.
+                © {new Date().getFullYear()} 옆집나약사. All rights reserved.
               </p>
               <div className="flex items-center gap-4 sm:gap-6">
                 <Link

@@ -21,7 +21,8 @@ import {
   Bell,
   Wand2,
   Film,
-  Star
+  Star,
+  BookOpen
 } from "lucide-react"
 
 const adminMenuItems = [
@@ -29,6 +30,7 @@ const adminMenuItems = [
   { href: "/admin/users", label: "사용자 관리", icon: Users },
   { href: "/admin/inquiries", label: "문의 관리", icon: MessageSquare },
   { href: "/admin/content", label: "컨텐츠 관리", icon: FileText },
+  { href: "/admin/lectures", label: "강의 요약 관리", icon: BookOpen },
   { href: "/admin/notices", label: "공지사항 관리", icon: Bell },
   { href: "/admin/products", label: "상품 관리", icon: Package },
   { href: "/admin/recommended-products", label: "추천제품 관리", icon: Star },
@@ -83,7 +85,7 @@ export default function AdminLayout({
             <Link href="/admin" className="flex items-center space-x-2">
               <Heart className="h-8 w-8 text-primary" />
               <div>
-                <h1 className="text-xl font-bold text-primary">옆집약사</h1>
+                <h1 className="text-xl font-bold text-primary">옆집나약사</h1>
                 <p className="text-xs text-muted-foreground">관리자 대시보드</p>
               </div>
             </Link>

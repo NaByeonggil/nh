@@ -1,6 +1,6 @@
 # Docker Production Deployment Guide
 
-이 가이드는 옆집약사(Neighbor Pharmacist) 프로젝트를 Docker를 통해 프로덕션 환경에 배포하는 방법을 설명합니다.
+이 가이드는 옆집나약사(Neighbor Pharmacist) 프로젝트를 Docker를 통해 프로덕션 환경에 배포하는 방법을 설명합니다.
 
 ## 📋 사전 요구사항
 

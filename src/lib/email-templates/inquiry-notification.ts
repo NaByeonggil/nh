@@ -40,7 +40,7 @@ export function getInquiryNotificationEmail({
           <tr>
             <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 24px;">💌 새로운 문의</h1>
-              <p style="color: #e0e7ff; margin: 10px 0 0 0; font-size: 14px;">옆집약사에 새로운 문의가 등록되었습니다</p>
+              <p style="color: #e0e7ff; margin: 10px 0 0 0; font-size: 14px;">옆집나약사에 새로운 문의가 등록되었습니다</p>
             </td>
           </tr>
 
@@ -116,7 +116,7 @@ export function getInquiryNotificationEmail({
           <tr>
             <td style="background-color: #f9fafb; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
               <p style="color: #6b7280; font-size: 12px; margin: 0;">
-                © 2024 옆집약사 (cancerwith.kr). All rights reserved.
+                © 2024 옆집나약사 (cancerwith.kr). All rights reserved.
               </p>
             </td>
           </tr>

@@ -9,12 +9,12 @@ export default function TermsPage() {
         </CardHeader>
         <CardContent className="prose max-w-none">
           <p className="text-muted-foreground mb-6">
-            옆집약사 서비스를 이용해 주셔서 감사합니다. 본 약관은 회원이 옆집약사가 제공하는 서비스를 이용함에 있어 회원과 옆집약사의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
+            옆집나약사 서비스를 이용해 주셔서 감사합니다. 본 약관은 회원이 옆집나약사가 제공하는 서비스를 이용함에 있어 회원과 옆집나약사의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
           </p>
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">제1조 (목적)</h2>
-            <p>본 약관은 옆집약사(이하 "회사")가 제공하는 온라인 건강정보 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
+            <p>본 약관은 옆집나약사(이하 "회사")가 제공하는 온라인 건강정보 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
           </section>
 
           <section className="mb-8">

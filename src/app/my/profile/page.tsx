@@ -19,7 +19,9 @@ import {
   X,
   ShoppingBag,
   MessageSquare,
-  Settings
+  Settings,
+  Lock,
+  CheckCircle
 } from "lucide-react"
 
 interface UserProfile {
@@ -58,6 +60,16 @@ export default function ProfilePage() {
     name: "",
     phone: "",
   })
+
+  // 비밀번호 변경 상태
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  })
+  const [changingPassword, setChangingPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState("")
+  const [passwordSuccess, setPasswordSuccess] = useState("")
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -145,6 +157,49 @@ export default function ProfilePage() {
     }
     setIsEditing(false)
     setError("")
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError("")
+    setPasswordSuccess("")
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError("새 비밀번호가 일치하지 않습니다.")
+      return
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError("새 비밀번호는 최소 6자 이상이어야 합니다.")
+      return
+    }
+
+    try {
+      setChangingPassword(true)
+
+      const response = await fetch("/api/user/password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setPasswordSuccess("비밀번호가 성공적으로 변경되었습니다.")
+        setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" })
+      } else {
+        setPasswordError(data.error || "비밀번호 변경에 실패했습니다.")
+      }
+    } catch (error) {
+      console.error("Password change error:", error)
+      setPasswordError("비밀번호 변경 중 오류가 발생했습니다.")
+    } finally {
+      setChangingPassword(false)
+    }
   }
 
   const getInitials = (name: string | null) => {
@@ -318,6 +373,84 @@ export default function ProfilePage() {
                     <p className="text-sm text-destructive">{error}</p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* 비밀번호 변경 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Lock className="h-5 w-5" />
+                  <span>비밀번호 변경</span>
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  보안을 위해 정기적으로 비밀번호를 변경하세요.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="currentPassword">현재 비밀번호</Label>
+                    <Input
+                      id="currentPassword"
+                      type="password"
+                      value={passwordForm.currentPassword}
+                      onChange={(e) =>
+                        setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
+                      }
+                      placeholder="현재 비밀번호를 입력하세요"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">새 비밀번호</Label>
+                      <Input
+                        id="newPassword"
+                        type="password"
+                        value={passwordForm.newPassword}
+                        onChange={(e) =>
+                          setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
+                        }
+                        placeholder="6자 이상"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">새 비밀번호 확인</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) =>
+                          setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))
+                        }
+                        placeholder="새 비밀번호를 다시 입력하세요"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {passwordError && (
+                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                      <p className="text-sm text-destructive">{passwordError}</p>
+                    </div>
+                  )}
+
+                  {passwordSuccess && (
+                    <div className="flex items-center space-x-2 p-3 bg-green-50 border border-green-200 rounded-md">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <p className="text-sm text-green-700">{passwordSuccess}</p>
+                    </div>
+                  )}
+
+                  <Button type="submit" disabled={changingPassword}>
+                    <Lock className="h-4 w-4 mr-2" />
+                    {changingPassword ? "변경 중..." : "비밀번호 변경"}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
           </div>

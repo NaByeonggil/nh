@@ -1,4 +1,4 @@
-# 🐳 옆집약사 (Neighbor Pharmacist) - Docker 프로덕션 배포 가이드
+# 🐳 옆집나약사 (Neighbor Pharmacist) - Docker 프로덕션 배포 가이드
 
 ## 📋 사전 요구사항
 

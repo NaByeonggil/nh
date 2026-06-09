@@ -59,6 +59,43 @@ export const orderSchema = z.object({
   items: z.array(orderItemSchema).min(1, "주문할 상품을 선택해주세요"),
 })
 
+// Lecture (강의 요약 아카이브) validation schemas
+export const lectureSchema = z.object({
+  title: z.string().min(1, "제목을 입력해주세요").max(200, "제목은 200자 이하여야 합니다"),
+  slug: z.string().max(200).optional(),
+  date: z.string().min(1, "강의 날짜를 입력해주세요"), // ISO date string
+  sequence: z.number().int().positive("회차는 1 이상이어야 합니다").optional(),
+  summary: z.string().max(500, "요약은 500자 이하여야 합니다").optional(),
+  keyPoints: z.array(z.string()).optional(),
+  body: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  questions: z.array(z.string()).optional(),
+  topics: z.array(z.string()).optional(), // topic 이름 목록 (없으면 생성)
+  status: z.enum(["DRAFT", "REVIEWED", "FINAL"]).default("DRAFT"),
+})
+
+export const lectureRevisionSchema = z.object({
+  note: z.string().min(1, "추가본 내용을 입력해주세요"),
+})
+
+export const topicSchema = z.object({
+  name: z.string().min(1, "주제명을 입력해주세요").max(100, "주제명은 100자 이하여야 합니다"),
+  slug: z.string().max(100).optional(),
+  overview: z.string().optional(),
+})
+
+// Notice (공지사항) validation schemas
+export const noticeSchema = z.object({
+  title: z.string().min(1, "제목을 입력해주세요").max(200, "제목은 200자 이하여야 합니다"),
+  content: z.string().min(1, "내용을 입력해주세요"),
+  important: z.boolean().default(false),
+  published: z.boolean().default(true),
+  isPopup: z.boolean().default(false),
+  popupStartDate: z.string().optional().nullable(), // ISO date string
+  popupEndDate: z.string().optional().nullable(),
+  popupShowOnce: z.boolean().default(true),
+})
+
 // File upload validation - commented out due to server-side build issues
 // export const fileUploadSchema = z.object({
 //   file: z.instanceof(File)
@@ -76,4 +113,8 @@ export type CommentData = z.infer<typeof commentSchema>
 export type ContentData = z.infer<typeof contentSchema>
 export type ProductData = z.infer<typeof productSchema>
 export type OrderData = z.infer<typeof orderSchema>
+export type LectureData = z.infer<typeof lectureSchema>
+export type LectureRevisionData = z.infer<typeof lectureRevisionSchema>
+export type TopicData = z.infer<typeof topicSchema>
+export type NoticeData = z.infer<typeof noticeSchema>
 // export type FileUploadData = z.infer<typeof fileUploadSchema>

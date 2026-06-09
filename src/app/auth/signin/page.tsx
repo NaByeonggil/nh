@@ -65,7 +65,7 @@ export default function SignInPage() {
             <Heart className="h-12 w-12 text-primary" />
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            옆집약사 로그인
+            옆집나약사 로그인
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             계정에 로그인하여 서비스를 이용하세요

@@ -75,7 +75,7 @@ export function HeroCarousel() {
       <div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
         <div className="text-center space-y-4 px-4">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary">
-            옆집약사에 오신 것을 환영합니다
+            옆집나약사에 오신 것을 환영합니다
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             암환자를 위한 전문적인 건강 정보와 맞춤형 상담 서비스를 제공합니다.

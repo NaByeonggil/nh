@@ -17,12 +17,12 @@ import { User, LogOut, Settings, Heart, Menu, X, ChevronRight } from "lucide-rea
 import { cn } from "@/lib/utils"
 
 const navigationItems = [
-  { href: "/about", label: "옆집약사 이야기" },
+  { href: "/about", label: "옆집나약사 이야기" },
   { href: "/inquiry", label: "문의게시판" },
   { href: "/lifestyle", label: "생활습관 식이요법" },
   { href: "/treatment", label: "표준치료 동향" },
   { href: "/supplements", label: "보충제 궁금해요" },
-  { href: "/products", label: "추천제품" },
+  { href: "/supplements", label: "추천제품" },
   { href: "/links", label: "추천 사이트" },
 ]
 
@@ -74,7 +74,7 @@ export function Header() {
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-2 group">
                 <Heart className="h-8 w-8 text-primary transition-transform group-hover:scale-110" />
-                <span className="text-2xl font-bold text-primary">옆집약사</span>
+                <span className="text-2xl font-bold text-primary">옆집나약사</span>
               </Link>
             </div>
 

@@ -65,8 +65,8 @@ const services = [
   {
     href: "/about",
     icon: Heart,
-    title: "옆집약사 이야기",
-    description: "옆집약사의 철학과 서비스 소개",
+    title: "옆집나약사 이야기",
+    description: "옆집나약사의 철학과 서비스 소개",
     features: ["서비스 소개", "전문가 소개", "플랫폼 비전"],
     buttonText: "더 알아보기",
     gradient: "from-rose-500 to-pink-600",

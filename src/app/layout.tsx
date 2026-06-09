@@ -13,7 +13,7 @@ const notoSansKR = Noto_Sans_KR({
 })
 
 export const metadata: Metadata = {
-  title: '옆집약사 - 암환자를 위한 생활정보',
+  title: '옆집나약사 - 암환자를 위한 생활정보',
   description: '암환자의 생활습관, 식이요법, 최신 치료정보를 제공하는 전문 플랫폼',
   keywords: ['암', '치료', '생활습관', '식이요법', '약사', '상담'],
 }

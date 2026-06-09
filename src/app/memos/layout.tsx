@@ -92,7 +92,7 @@ export default function MemosLayout({
       {/* Footer */}
       <footer className="border-t bg-white mt-16">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          <p>옆집약사 관리자 메모장 © 2024</p>
+          <p>옆집나약사 관리자 메모장 © 2024</p>
         </div>
       </footer>
     </div>

@@ -423,7 +423,7 @@ function ProductDetailContent({ id }: { id: string }) {
               <div>
                 <h4 className="font-semibold mb-2">제품 정보</h4>
                 <ul className="space-y-1 text-muted-foreground">
-                  <li>• 브랜드: 옆집약사 추천</li>
+                  <li>• 브랜드: 옆집나약사 추천</li>
                   <li>• 제조국: 대한민국</li>
                   <li>• 보관방법: 실온 보관</li>
                   <li>• 유통기한: 제조일로부터 24개월</li>

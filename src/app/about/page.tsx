@@ -108,7 +108,7 @@ export default function AboutPage() {
             <div className="flex items-center justify-center mb-6">
               <Heart className="h-12 w-12 text-primary mr-4" />
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-                옆집약사
+                옆집나약사
               </h1>
             </div>
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
