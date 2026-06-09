@@ -25,8 +25,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# local env files (시크릿 포함 — .env.example 템플릿만 추적)
+.env
+.env.production
 .env*.local
+!.env.example
 
 # vercel
 .vercel
@@ -40,6 +43,14 @@ next-env.d.ts
 
 # database
 /prisma/dev.db
+/prisma/dev.db.legacy
+*.db.legacy
+
+# nginx TLS 인증서·키 (절대 커밋 금지)
+/nginx/ssl/
+
+# 자동 백업 디렉토리
+/backup_*/
 
 # logs
 *.log
