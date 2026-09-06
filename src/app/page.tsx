@@ -2,6 +2,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Heart, MessageSquare, Book, Stethoscope, Pill, ExternalLink, ArrowRight, CheckCircle2 } from "lucide-react"
 import { HeroCarousel } from "@/components/features/hero/HeroCarousel"
+import { db } from "@/lib/db"
+import { unstable_cache } from "next/cache"
 import NoticePopup from "@/components/NoticePopup"
 import { cn } from "@/lib/utils"
 
@@ -75,7 +77,33 @@ const services = [
   },
 ]
 
-export default function HomePage() {
+// 페이지 자체는 요청 시 렌더링한다.
+// (빌드 타임 프리렌더를 하면 DB 가 없는 Docker 빌드 환경에서 빌드가 실패한다)
+export const dynamic = "force-dynamic"
+
+// 대신 히어로 조회 결과를 태그 캐시에 담아 매 요청마다 DB 를 치지 않도록 한다.
+// 관리자가 히어로를 수정하면 revalidateTag("hero-images") 로 즉시 무효화된다.
+const getActiveHeroImages = unstable_cache(
+  () =>
+    db.heroImage.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+    }),
+  ["active-hero-images"],
+  { revalidate: 300, tags: ["hero-images"] }
+)
+
+export default async function HomePage() {
+  // 클라이언트 fetch(번들 → 하이드레이션 → API 왕복) 워터폴을 없애기 위해
+  // 서버에서 미리 조회한다. 히어로 <img> 가 초기 HTML 에 들어가 프리로드 스캐너가 즉시 받는다.
+  // DB 장애 시에도 홈이 500 이 되지 않도록 기본 히어로로 폴백한다.
+  let heroImages: Awaited<ReturnType<typeof getActiveHeroImages>> = []
+  try {
+    heroImages = await getActiveHeroImages()
+  } catch (error) {
+    console.error("Failed to load hero images:", error)
+  }
+
   return (
     <>
       <NoticePopup />
@@ -83,7 +111,7 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="relative">
           <div className="container mx-auto px-4 py-8">
-            <HeroCarousel />
+            <HeroCarousel images={heroImages} />
           </div>
         </section>
 

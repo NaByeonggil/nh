@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { revalidateTag } from "next/cache"
 
 export async function GET(request: NextRequest) {
   try {
@@ -65,6 +66,8 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // 홈 히어로 캐러셀 캐시 즉시 무효화 (app/page.tsx 의 unstable_cache 태그)
+    revalidateTag("hero-images")
     return NextResponse.json(heroImage)
   } catch (error) {
     console.error("Failed to create hero image:", error)

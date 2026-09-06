@@ -7,10 +7,11 @@ import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getImageUrl } from "@/lib/image-url"
 
+// prisma HeroImage 모델과 동일한 형태 (title/subtitle 등은 nullable)
 interface HeroImage {
   id: string
   imageUrl: string
-  title: string
+  title: string | null
   subtitle: string | null
   linkUrl: string | null
   linkText: string | null
@@ -18,14 +19,42 @@ interface HeroImage {
   order: number
 }
 
-export function HeroCarousel() {
-  const [images, setImages] = useState<HeroImage[]>([])
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [loading, setLoading] = useState(true)
+interface HeroCarouselProps {
+  /** 서버 컴포넌트(app/page.tsx)에서 미리 조회해 넘겨준다. */
+  images: HeroImage[]
+}
 
+export function HeroCarousel({ images }: HeroCarouselProps) {
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  // 실제로 <img> 를 마운트할 슬라이드 인덱스.
+  // 비활성 슬라이드도 뷰포트 안에 겹쳐 있어 loading="lazy" 만으로는 지연되지 않으므로,
+  // 첫 화면에는 0번만 두고 나머지는 초기 로드가 끝난 뒤/사용자가 이동할 때 마운트한다.
+  const [mounted, setMounted] = useState<number[]>([0])
+  const [primed, setPrimed] = useState(false)
+
+  // 초기 로드가 끝난 뒤에야 다음 슬라이드를 준비한다 (LCP 대역폭 경합 방지)
   useEffect(() => {
-    fetchImages()
+    if (document.readyState === "complete") {
+      const timer = setTimeout(() => setPrimed(true), 300)
+      return () => clearTimeout(timer)
+    }
+    const onLoad = () => setPrimed(true)
+    window.addEventListener("load", onLoad, { once: true })
+    return () => window.removeEventListener("load", onLoad)
   }, [])
+
+  // 현재 슬라이드 + (준비 완료 시) 바로 다음 슬라이드만 마운트
+  useEffect(() => {
+    setMounted((prev) => {
+      const next = new Set(prev)
+      next.add(currentIndex)
+      if (primed && images.length > 1) {
+        next.add((currentIndex + 1) % images.length)
+      }
+      return next.size === prev.length ? prev : Array.from(next)
+    })
+  }, [currentIndex, primed, images.length])
 
   // Auto-slide effect
   useEffect(() => {
@@ -38,20 +67,6 @@ export function HeroCarousel() {
     return () => clearInterval(interval)
   }, [images.length])
 
-  const fetchImages = async () => {
-    try {
-      const response = await fetch("/api/hero-images")
-      if (response.ok) {
-        const data = await response.json()
-        setImages(data)
-      }
-    } catch (error) {
-      console.error("Failed to fetch hero images:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const goToPrevious = () => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
   }
@@ -62,12 +77,6 @@ export function HeroCarousel() {
 
   const goToSlide = (index: number) => {
     setCurrentIndex(index)
-  }
-
-  if (loading) {
-    return (
-      <div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] bg-gradient-to-r from-primary/20 to-primary/10 animate-pulse rounded-lg" />
-    )
   }
 
   if (images.length === 0) {
@@ -106,13 +115,21 @@ export function HeroCarousel() {
             )}
           >
             {/* Background Image */}
-            <div className="absolute inset-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={getImageUrl(image.imageUrl)}
-                alt={image.title}
-                className="w-full h-full object-cover"
-              />
+            <div className="absolute inset-0 bg-primary/10">
+              {mounted.includes(index) && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={getImageUrl(image.imageUrl)}
+                  alt={image.title ?? ""}
+                  width={1920}
+                  height={1080}
+                  // 첫 슬라이드가 LCP 요소이므로 우선 로딩, 나머지는 지연 로딩
+                  loading={index === 0 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 ? "high" : "low"}
+                  decoding={index === 0 ? "sync" : "async"}
+                  className="w-full h-full object-cover"
+                />
+              )}
               {/* Overlay */}
               <div className="absolute inset-0 bg-black/40" />
             </div>
@@ -121,9 +138,11 @@ export function HeroCarousel() {
             <div className="relative z-10 h-full flex items-center">
               <div className="container mx-auto px-4">
                 <div className="max-w-3xl text-white">
-                  <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-4 leading-tight">
-                    {image.title}
-                  </h1>
+                  {image.title && (
+                    <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-4 leading-tight">
+                      {image.title}
+                    </h1>
+                  )}
                   {image.subtitle && (
                     <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90 leading-relaxed">
                       {image.subtitle}

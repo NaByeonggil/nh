@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { revalidateTag } from "next/cache"
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -34,6 +35,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     })
 
+    // 홈 히어로 캐러셀 캐시 즉시 무효화 (app/page.tsx 의 unstable_cache 태그)
+    revalidateTag("hero-images")
     return NextResponse.json(heroImage)
   } catch (error) {
     console.error("Failed to update hero image:", error)
@@ -63,6 +66,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       data: body
     })
 
+    // 홈 히어로 캐러셀 캐시 즉시 무효화 (app/page.tsx 의 unstable_cache 태그)
+    revalidateTag("hero-images")
     return NextResponse.json(heroImage)
   } catch (error) {
     console.error("Failed to patch hero image:", error)
@@ -89,6 +94,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       where: { id: id }
     })
 
+    // 홈 히어로 캐러셀 캐시 즉시 무효화 (app/page.tsx 의 unstable_cache 태그)
+    revalidateTag("hero-images")
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Failed to delete hero image:", error)
