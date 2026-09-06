@@ -11,8 +11,12 @@ services:
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./backup:/backup
+    # 앱은 compose 내부 네트워크로 db:3306 에 붙는다 (DATABASE_URL 참조).
+    # 이 게시 포트는 호스트 도구(db:studio, scripts)만 쓰므로 루프백으로 제한한다.
+    # 예전 "3307:3306" 은 0.0.0.0 바인딩이라 LAN 어디서나 접속이 가능했고,
+    # Docker 는 ufw 의 INPUT 규칙을 우회하므로 방화벽으로는 막히지 않았다.
     ports:
-      - "3307:3306"
+      - "127.0.0.1:3307:3306"
     networks:
       - nh_network
     healthcheck:
