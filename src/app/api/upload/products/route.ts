@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { writeFile, mkdir } from "fs/promises"
 import path from "path"
+import { MAX_WIDTH, processUploadedImage } from "@/lib/image-processing"
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,14 +34,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "지원하지 않는 파일 형식입니다. (JPG, PNG, WebP만 가능)" }, { status: 400 })
     }
 
+    // 리사이즈 + WebP 재인코딩
     const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    const processed = await processUploadedImage(Buffer.from(bytes), {
+      maxWidth: MAX_WIDTH.product,
+      originalName: file.name,
+      mimeType: file.type,
+    })
 
     // 고유한 파일명 생성
     const timestamp = Date.now()
     const randomNum = Math.floor(Math.random() * 1000000)
-    const extension = path.extname(file.name)
-    const filename = `product_${timestamp}_${randomNum}${extension}`
+    const filename = `product_${timestamp}_${randomNum}.${processed.ext}`
 
     // 업로드 디렉토리 생성
     const uploadDir = path.join(process.cwd(), "public", "uploads", "products")
@@ -48,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     // 파일 저장
     const filepath = path.join(uploadDir, filename)
-    await writeFile(filepath, buffer)
+    await writeFile(filepath, processed.buffer)
 
     // 클라이언트에서 접근 가능한 URL 반환
     const imageUrl = `/uploads/products/${filename}`
@@ -56,7 +61,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       imageUrl,
-      filename 
+      filename,
+      size: processed.size,
+      originalSize: processed.originalSize,
+      optimized: processed.converted
     })
 
   } catch (error) {

@@ -5,6 +5,7 @@ import path from "path"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { generateFileName, isImageFile } from "@/lib/helpers"
+import { MAX_WIDTH, processUploadedImage, withExt } from "@/lib/image-processing"
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,14 +61,20 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      // 이미지는 리사이즈 + WebP 재인코딩, PDF 는 원본 그대로 통과
+      const bytes = await file.arrayBuffer()
+      const processed = await processUploadedImage(Buffer.from(bytes), {
+        maxWidth: MAX_WIDTH.inquiry,
+        originalName: file.name,
+        mimeType: file.type,
+      })
+
       // 파일명 생성
-      const fileName = generateFileName(file.name)
+      const fileName = withExt(generateFileName(file.name), processed.ext)
       const filePath = path.join(fullUploadDir, fileName)
 
       // 파일 저장
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      await writeFile(filePath, buffer)
+      await writeFile(filePath, processed.buffer)
 
       // 웹 접근 가능한 경로
       const webPath = `/uploads/${yearMonth}/${fileName}`
@@ -76,9 +83,11 @@ export async function POST(request: NextRequest) {
         originalName: file.name,
         fileName: fileName,
         filePath: webPath,
-        fileSize: file.size,
-        fileType: file.type,
-        isImage: isImageFile(file.name),
+        fileSize: processed.size,
+        originalFileSize: processed.originalSize,
+        optimized: processed.converted,
+        fileType: processed.converted ? "image/webp" : file.type,
+        isImage: isImageFile(fileName),
       })
     }
 

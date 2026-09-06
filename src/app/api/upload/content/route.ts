@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { writeFile, mkdir } from "fs/promises"
-import { join, extname } from "path"
+import { join } from "path"
 import { existsSync } from "fs"
+import { MAX_WIDTH, processUploadedImage, withExt } from "@/lib/image-processing"
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,15 +60,21 @@ export async function POST(request: NextRequest) {
       await mkdir(monthDir, { recursive: true })
     }
 
+    // 리사이즈 + WebP 재인코딩 (애니메이션 GIF 는 원본 유지)
     const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    const processed = await processUploadedImage(Buffer.from(bytes), {
+      maxWidth: MAX_WIDTH.content,
+      originalName: file.name,
+      mimeType: file.type,
+    })
+
     const timestamp = Date.now()
     const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-    const filename = `${timestamp}_${sanitizedName}`
+    const filename = withExt(`${timestamp}_${sanitizedName}`, processed.ext)
     const filepath = join(monthDir, filename)
 
     // 파일 저장
-    await writeFile(filepath, buffer)
+    await writeFile(filepath, processed.buffer)
 
     // 웹에서 접근 가능한 URL 생성
     const imageUrl = `/uploads/content/${yearMonth}/${filename}`
@@ -77,8 +84,12 @@ export async function POST(request: NextRequest) {
       url: imageUrl,
       filename,
       originalName: file.name,
-      size: file.size,
-      type: file.type
+      size: processed.size,
+      originalSize: processed.originalSize,
+      optimized: processed.converted,
+      width: processed.width,
+      height: processed.height,
+      type: processed.converted ? "image/webp" : file.type
     })
 
   } catch (error) {

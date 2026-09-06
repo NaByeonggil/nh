@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { writeFile, mkdir } from "fs/promises"
-import { join, extname } from "path"
+import { join } from "path"
 import { existsSync } from "fs"
+import { MAX_WIDTH, processUploadedImage } from "@/lib/image-processing"
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,16 +51,20 @@ export async function POST(request: NextRequest) {
       await mkdir(uploadDir, { recursive: true })
     }
 
-    // 파일명 생성 (타임스탬프 + 원본 확장자)
+    // 리사이즈 + WebP 재인코딩 (원본 그대로 저장하면 히어로가 수 MB 가 된다)
     const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    const processed = await processUploadedImage(Buffer.from(bytes), {
+      maxWidth: MAX_WIDTH.hero,
+      originalName: file.name,
+      mimeType: file.type,
+    })
+
     const timestamp = Date.now()
-    const extension = extname(file.name)
-    const filename = `hero_${timestamp}${extension}`
+    const filename = `hero_${timestamp}.${processed.ext}`
     const filepath = join(uploadDir, filename)
 
     // 파일 저장
-    await writeFile(filepath, buffer)
+    await writeFile(filepath, processed.buffer)
 
     // 웹에서 접근 가능한 URL 생성
     const imageUrl = `/uploads/hero-images/${filename}`
@@ -69,8 +74,12 @@ export async function POST(request: NextRequest) {
       imageUrl,
       filename,
       originalName: file.name,
-      size: file.size,
-      type: file.type
+      size: processed.size,
+      originalSize: processed.originalSize,
+      optimized: processed.converted,
+      width: processed.width,
+      height: processed.height,
+      type: processed.converted ? "image/webp" : file.type
     })
 
   } catch (error) {
