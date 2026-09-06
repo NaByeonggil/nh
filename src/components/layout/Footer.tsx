@@ -15,7 +15,7 @@ const quickLinks = [
 
 const moreLinks = [
   { href: "/supplements", label: "보충제 궁금해요" },
-  { href: "/supplements", label: "추천제품" },
+  { href: "/blood-checklist", label: "혈액검사 체크리스트" },
   { href: "/links", label: "추천 사이트" },
 ]
 
