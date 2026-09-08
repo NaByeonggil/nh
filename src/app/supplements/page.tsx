@@ -17,6 +17,7 @@ import {
   TrendingUp
 } from "lucide-react"
 import { formatPrice } from "@/lib/helpers"
+import { RecommendedProducts } from "@/components/features/supplements/RecommendedProducts"
 
 interface Product {
   id: string
@@ -175,6 +176,9 @@ export default function SupplementsPage() {
             </div>
           </div>
         </div>
+
+        {/* 관리자가 큐레이션한 추천 제품 */}
+        <RecommendedProducts />
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

@@ -49,6 +49,25 @@ export const productSchema = z.object({
   inStock: z.boolean().default(true),
 })
 
+// 추천 제품 (외부 구매 링크로 연결되는 큐레이션 목록)
+export const recommendedProductSchema = z.object({
+  name: z.string().min(1, "제품명을 입력해주세요").max(100, "제품명은 100자 이하여야 합니다"),
+  description: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  price: z.number().nonnegative("가격은 0 이상이어야 합니다"),
+  originalPrice: z.number().nonnegative("정가는 0 이상이어야 합니다").optional().nullable(),
+  rating: z.number().min(0).max(5, "평점은 0~5 사이여야 합니다").default(0),
+  reviewCount: z.number().int().min(0).default(0),
+  purchaseUrl: z
+    .string()
+    .url("올바른 URL 형식이 아닙니다")
+    .optional()
+    .nullable()
+    .or(z.literal("")),
+  isActive: z.boolean().default(true),
+  order: z.number().int().optional(),
+})
+
 // Order validation schemas
 export const orderItemSchema = z.object({
   productId: z.string(),
@@ -113,6 +132,7 @@ export type CommentData = z.infer<typeof commentSchema>
 export type ContentData = z.infer<typeof contentSchema>
 export type ProductData = z.infer<typeof productSchema>
 export type OrderData = z.infer<typeof orderSchema>
+export type RecommendedProductData = z.infer<typeof recommendedProductSchema>
 export type LectureData = z.infer<typeof lectureSchema>
 export type LectureRevisionData = z.infer<typeof lectureRevisionSchema>
 export type TopicData = z.infer<typeof topicSchema>
