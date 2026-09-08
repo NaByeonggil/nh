@@ -13,6 +13,11 @@ export interface CartItem {
 
 const CART_KEY = 'neighbor-pharmacist-cart'
 
+// localStorage 는 변경을 일으킨 탭에는 storage 이벤트를 보내지 않는다.
+// 그래서 헤더 배지처럼 같은 탭의 다른 useCart 인스턴스가 갱신되지 않으므로,
+// 저장할 때마다 이 이벤트를 직접 쏴서 구독자들이 다시 읽게 한다.
+export const CART_UPDATED_EVENT = 'cart-updated'
+
 export const cartUtils = {
   // 장바구니 전체 조회
   getCart: (): CartItem[] => {
@@ -33,6 +38,7 @@ export const cartUtils = {
     
     try {
       localStorage.setItem(CART_KEY, JSON.stringify(cart))
+      window.dispatchEvent(new CustomEvent(CART_UPDATED_EVENT))
     } catch (error) {
       console.error('Error saving cart to localStorage:', error)
     }

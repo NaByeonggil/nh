@@ -1,16 +1,26 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { cartUtils, type CartItem } from '@/lib/cart'
+import { cartUtils, CART_UPDATED_EVENT, type CartItem } from '@/lib/cart'
 
 export function useCart() {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // 컴포넌트 마운트 시 장바구니 로드
+  // 컴포넌트 마운트 시 장바구니 로드 + 이후 변경 구독
   useEffect(() => {
     setCart(cartUtils.getCart())
     setIsLoading(false)
+
+    // 같은 탭의 다른 인스턴스(헤더 배지 등)와 다른 탭 양쪽 모두 따라가게 한다.
+    const sync = () => setCart(cartUtils.getCart())
+    window.addEventListener(CART_UPDATED_EVENT, sync)
+    window.addEventListener('storage', sync)
+
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, sync)
+      window.removeEventListener('storage', sync)
+    }
   }, [])
 
   // 상품 추가

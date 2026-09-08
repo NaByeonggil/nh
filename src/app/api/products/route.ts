@@ -49,6 +49,8 @@ export async function GET(request: NextRequest) {
     const processedProducts = products.map(product => ({
       ...product,
       images: product.images ? JSON.parse(product.images) : [],
+      // Decimal 은 JSON 에서 문자열이 되므로 숫자로 내려준다 (장바구니·합계 계산이 이 값을 쓴다)
+      price: Number(product.price),
       discountPrice: product.discountRate > 0 
         ? Number(product.price) * (1 - product.discountRate / 100) 
         : null

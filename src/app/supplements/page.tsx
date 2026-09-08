@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -14,9 +14,11 @@ import {
   ShoppingCart, 
   Star,
   Package,
-  TrendingUp
+  TrendingUp,
+  Check
 } from "lucide-react"
 import { formatPrice } from "@/lib/helpers"
+import { useCart } from "@/hooks/useCart"
 import { RecommendedProducts } from "@/components/features/supplements/RecommendedProducts"
 
 interface Product {
@@ -59,6 +61,13 @@ export default function SupplementsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
+  const [addedId, setAddedId] = useState<string | null>(null)
+  const { addItem } = useCart()
+  const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => {
+    if (addedTimer.current) clearTimeout(addedTimer.current)
+  }, [])
 
   const fetchProducts = async (page: number = 1, searchTerm: string = "", categoryFilter: string = "all") => {
     try {
@@ -104,6 +113,26 @@ export default function SupplementsPage() {
   const handleCategoryChange = (newCategory: string) => {
     setCategory(newCategory)
     setCurrentPage(1)
+  }
+
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      discountPrice:
+        product.discountRate > 0 && product.discountPrice
+          ? product.discountPrice
+          : undefined,
+      quantity: 1,
+      image: product.images?.[0],
+      inStock: product.inStock,
+    })
+
+    // 목록에서는 alert 대신 해당 카드 버튼만 잠시 '담김' 으로 바꾼다.
+    setAddedId(product.id)
+    if (addedTimer.current) clearTimeout(addedTimer.current)
+    addedTimer.current = setTimeout(() => setAddedId(null), 1800)
   }
 
   const getDisplayPrice = (product: Product) => {
@@ -317,13 +346,25 @@ export default function SupplementsPage() {
                       {getDisplayPrice(product)}
                     </div>
                     
-                    <Button 
+                    <Button
                       size="sm"
                       disabled={!product.inStock}
                       className="h-8"
+                      onClick={() => handleAddToCart(product)}
                     >
-                      <ShoppingCart className="h-3 w-3 mr-1" />
-                      {product.inStock ? "구매" : "품절"}
+                      {!product.inStock ? (
+                        "품절"
+                      ) : addedId === product.id ? (
+                        <>
+                          <Check className="h-3 w-3 mr-1" />
+                          담김
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="h-3 w-3 mr-1" />
+                          담기
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardContent>
