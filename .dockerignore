@@ -65,6 +65,7 @@ public/uploads/
 # SSL certificates
 *.pem
 ssl/
+nginx/ssl/
 
 # Other
 .eslintcache
