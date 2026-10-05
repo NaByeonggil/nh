@@ -54,6 +54,8 @@ next-env.d.ts
 
 # logs
 *.log
+/logs/disk-health.json
+/logs/disk-health-history.jsonl
 
 # macOS
 ._*

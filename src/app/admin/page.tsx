@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DiskHealthCard } from "@/components/features/admin/disk-health-card"
 import {
   Users,
   MessageSquare,
@@ -277,6 +278,9 @@ export default function AdminDashboard() {
           </Card>
         </div>
       )}
+
+      {/* 디스크 상태 (관리자 전용, 권한이 없으면 렌더링되지 않음) */}
+      <DiskHealthCard />
 
       {/* 접속 통계 탭 */}
       {analytics && (
