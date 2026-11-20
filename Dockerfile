@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 RUN apk add --no-cache libc6-compat openssl python3 make g++ vips-dev
 
@@ -18,7 +18,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine AS runner
+FROM node:22-alpine AS runner
 
 RUN apk add --no-cache openssl vips ffmpeg
 
